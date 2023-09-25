@@ -1,14 +1,9 @@
 #include"uinfo.h"
 #include<ctime>
-template <typename T>
-void clearin(T &tmp){
-	cin.clear();
-	cin.ignore(1024,'\n');
-	cin>>tmp;
-}
-date::date(unsigned short year,unsigned short month,unsigned short day):year(year),month(month),day(day){}//注册时间由服务器写
+#include"clearin.cpp"
 region::region(int num,string nameD):name(nameD),subr(num){//merely change
    }
+date::date(unsigned short year,unsigned short month,unsigned short day):year(year),month(month),day(day){}//注册时间由服务器写
 uinfo::uinfo(string nickD,unsigned short Tyear,unsigned short Tmonth,unsigned short Tday,unsigned short year,unsigned short month,unsigned short day,unsigned int idD):ID(idD),birth(year,month,day),Tbirth(Tyear,Tmonth,Tday),nickname(nickD){//登陆时从服务器读取账号
 }
 void date::print(){
@@ -37,10 +32,10 @@ void date::reset(){
 	return;
 }
 void uinfo::set(){
-	char choice='\0';
+	char choice='\n';
 	while(1){
-		cout<<"\n选择要设置的信息：1.昵称 2.生日 3.所在地"<<endl<<"0.返回";
-		clearin(choice);
+		cout<<"\n选择要设置的信息：1.昵称 2.生日 3.所在地"<<endl<<"0.返回\n";
+		clearin(choice);//不知道为什么ignore会导致需要输入两遍
 		switch(choice){
 			case '1':
 				cout<<"\n输入新昵称：";
@@ -64,7 +59,6 @@ void uinfo::set(){
 				return;
 			default:
 				cout<<"\n重新输入：";
-				continue;
 		}
 	}
 	return;

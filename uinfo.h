@@ -1,3 +1,5 @@
+#ifndef UINFO_H
+#define UINFO_H
 #include<iostream>
 #include<string>
 #include<cstdio>
@@ -34,3 +36,4 @@ public:
 	void set();//登录后修改可改信息
 	void print();
 };
+#endif
