@@ -1,42 +1,37 @@
-#include<string.h>
-#include<unistd.h>
-#include<arpa/inet.h>
+#include"Msign.h"
+#include<string>
+#include"net.h"
 #include<pthread.h>
 #include<stdlib.h>
 #include<vector>
 #include<iostream>
 #include<cstdio>
-//#include"net.h"
 using namespace std;
 class sockinfo{
 	struct sockaddr_in caddr;
 	int fd;
 public:
 	sockinfo();
-	bool free();
-	struct sockaddr * waddr();
+	bool isfree();
+	struct sockaddr * waddr(){
+		return (struct sockaddr*)&caddr;
+	}
 	void wsock(int);
-	in_addr_t* getaddr();
-	int getport();
-	int getfd();
+	in_addr_t* getaddr(){
+		return &caddr.sin_addr.s_addr;
+	}
+	int getport(){
+		return caddr.sin_port;
+	}
+	int getfd(){
+		return fd;
+	}
 };
-int sockinfo:: getfd(){
-	return fd;
-}
-in_addr_t* sockinfo::getaddr(){
-	return &caddr.sin_addr.s_addr;
-}
-int sockinfo ::getport(){
-	return caddr.sin_port;
-}
 void sockinfo::wsock(int cfd){
 	fd=cfd;
 	return;
 }
-struct sockaddr* sockinfo::waddr(){
-	return (struct sockaddr*)&caddr;
-}
-bool sockinfo::free(){
+bool sockinfo::isfree(){
 	if(fd==-1)
 		return true;
 	else
@@ -73,12 +68,13 @@ int main(void){
 		perror("listen");
 		return -1;
 	}
-	//4
+	cout<<"\n服务器启动\n";
+	//4 
 	socklen_t addrlen=sizeof(struct sockaddr);
 	while(1){
 		class sockinfo* p;
-		for(int i=0;i<LISTEN_MAX*3;i++){
-			if(infos[i].free()){
+		for(unsigned int i=0;i<LISTEN_MAX*3;i++){
+			if(infos[i].isfree()){
 				p=&infos[i];
 				break;
 			}
@@ -101,14 +97,15 @@ void* working(void* arg){
 	char ip[32];
 	cout<<"client ip:"<<inet_ntop(AF_INET,p->getaddr(),ip,sizeof(ip))<<"  port:"<<ntohs(p->getport())<<endl;
 	while(1){
-		char buff[1024];
-		int m=recv(p->getfd(),buff,sizeof(buff),0);
+		Msign *buff=(Msign*)malloc(sizeof(Msign));
+		int m=recv(p->getfd(),buff,sizeof(Msign),0);
 		if(m>0){
-			cout<<"clent says:"<<buff;
-			send(p->getfd(),buff,sizeof(buff),0);
+			cout<<buff->getID()<<endl<<buff->getsignK()<<endl<<buff->getplatform()<<endl<<buff->getPW();
+			free(buff);
+	//		send(p->getfd(),buff,sizeof(buff),0);
 		}
 		else if(m==0){
-			cout<<"client disconnects...";
+			cout<<endl<<"client disconnects..."<<endl;
 			break;
 		}
 		else{

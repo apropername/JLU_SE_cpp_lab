@@ -42,8 +42,8 @@ void uinfo::set(){
 				{//防止编译器因局部变量报错
 					string tmp;
 					clearin(tmp);
-					while(tmp.size()==0||tmp.size()>30){
-						cout<<"\n输入为空或过长"<<"\n请重新输入：";
+					while(tmp.size()>30){
+						cout<<"\n输入过长"<<"\n请重新输入：";
 						clearin(tmp);
 					}
 					nickname=tmp;
@@ -71,4 +71,7 @@ void uinfo::print(){
 	Tbirth.print();
 	//cout<<住址
 	return;
+}
+int main(){
+	return 0;
 }
