@@ -7,12 +7,16 @@ class Msign{
 	char PW[31];
 	char PF;
 	char kind;
+	int FB;
 public:
+	Msign();
 	Msign(unsigned int,string,char,char);
 	unsigned int getID();
 	char* getPW();
 	char getplatform();
 	char getsignK();
+	int *setFB();
+	int outFB();
 };
 
 #endif

@@ -73,10 +73,23 @@ int main(){
 	Msign link(inID,inPW,platform,choice);
 	int cfd=client_start();
 	if(cfd!=-1) cout<<"\n连接服务器成功";
+	else {
+		cout<<"\n.连接服务器失败";
+		return 0;
+	}
 	int m=send(cfd,&link,sizeof(link),0);
 	if(m==-1){
 		perror("send");
 	}
+	m=recv(cfd,link.setFB(),sizeof(int),0);
+	if(m>0){
+		if(link.outFB()==2){
+			cout<<"\nlog in";
+			
+		}
+	}
+	else if(m==0) cout<<"\n服务器断开连接\n";
+	else perror("recv");
 	close(cfd);
 	return 0;
 }
