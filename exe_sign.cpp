@@ -20,6 +20,9 @@ int Esign::exe(unsigned int ID,char* PW,char kind,char PF){
 	}
 	string sID=to_string(ID);
 	string sPW=PW;
+	string test="h";
+//	if(sPW==test) cout<<"我傻了"<<endl;
+//	if(PW[0]=='h') cout<<"??"<<endl;
 	string table;
 	if(PF=='1') table="user_info";
 	else if(PF=='2') table="We2_Uinfo";
@@ -52,12 +55,61 @@ int Esign::exe(unsigned int ID,char* PW,char kind,char PF){
 		}
 		else {
 			MYSQL_ROW row=mysql_fetch_row(result);
-			if(row[1]==sPW) lastE=2;//goto sign in;
+			if(row[1]==sPW) {
+				if(IPID::search(ID)==NULL){
+					lastE=2;
+				}
+				else lastE=-5;
+			}
 			else lastE=-3;
 		}
 	}
-	else lastE=-5;//不可能到达
+	else lastE=-6;//不可能到达
 	mysql_free_result(result);
 	mysql_close(&mysql);
 	return lastE;
+}
+
+IPID::IPID():ID(0),IP("\0"),next(NULL){}//注册登录皆已经限制了ID!=0
+IPID::IPID(unsigned int loginID,char *loginIP):ID(loginID),IP(loginIP),next(NULL){//考虑到先登录的更可能先登出，便使用不严格队列进行添加删除
+	unsigned int index=loginID%10;
+	tail[index]->next=this;
+	tail[index]=this;
+	counter++;
+}
+void IPID::logout(unsigned int logoutID){//结点并非动态申请，靠析构函数释放
+	unsigned int index=logoutID%10;
+	IPID *r0=head[index];
+	IPID *r=head[index]->next;
+	while(r!=NULL&&r->ID!=logoutID){
+		r0=r;
+		r=r->next;
+	}
+	if(r==NULL) std::cout<<"\n错误！账号不在连接列表\n";//不应该出现的情况
+	else{
+		r0->next=r->next;
+		r->next=NULL;
+		counter--;
+		if(head[index]->next==NULL) tail[index]=head[index];//如果登出的账号是本链最后一个，要把tail指针复位，否则再添加时tail链将与head分离
+	}
+}
+
+void IPID::init(){
+	for(int i=0;i<10;i++){
+		head[i]=new IPID;
+		tail[i]=head[i];
+	}
+}
+void IPID::finish(){
+	for(int i=0;i<10;i++){
+		delete head[i];
+	}
+}
+IPID* IPID::search(unsigned int OID){
+	if(Rcounter()){
+		IPID *r=head[OID%10]->next;
+		while(r!=NULL&&r->ID!=OID) r=r->next;
+		return r;
+	}
+	else return NULL;
 }

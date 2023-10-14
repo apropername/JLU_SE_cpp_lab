@@ -2,7 +2,6 @@
 #include<string>
 #include"net.h"
 #include<pthread.h>
-#include<stdlib.h>
 #include<vector>
 #include<iostream>
 #include<cstdio>
@@ -26,26 +25,6 @@ public:
 	int getfd(){
 		return fd;
 	}
-};
-class IPID{
-	static IPID* head[10];
-	static IPID* tail[10];
-	static int counter;
-	unsigned int ID;
-	char *IP;//不使用实内存可能出现问题
-	IPID* next;
-	public:
-	IPID();
-	IPID(unsigned int,char* );
-	unsigned int getID ()const{
-		return ID;
-	}
-	static void init();
-	static void finish();
-	static int Rcounter(){
-		return counter;
-	}	
-	static void logout(unsigned int);
 };
 void* working(void*);
 const unsigned int SEVERZ_PORT=6666,LISTEN_MAX=30;
@@ -77,7 +56,7 @@ int main(void){
 		return -1;
 	}
 	cout<<"\n服务器启动\n";
-	IPID::init();//IPID表的初始化，写作用域只是为了增加易读性
+	IPID::init();//IPID表的初始化
 	//4 
 	socklen_t addrlen=sizeof(struct sockaddr);
 	while(1){
@@ -99,6 +78,7 @@ int main(void){
 		pthread_detach(tid);
 	}
 	close(fd);
+	IPID::finish();
 	return 0;
 }
 void* working(void* arg){
@@ -122,8 +102,8 @@ void* working(void* arg){
 		else{
 			if(tmp==2){
 				IPID record(ID,ip);
-				cout<<record.getID();
-				IPID::logout(record.getID());
+//				communicating();
+				IPID::logout(ID);
 			}
 		}
 	}
@@ -147,32 +127,3 @@ sockinfo::sockinfo(){
 	caddr.sin_addr.s_addr=0;
 	fd=-1;
 }
-IPID::IPID():ID(0),IP("\0"),next(NULL){}
-IPID::IPID(unsigned int loginID,char *loginIP):ID(loginID),IP(loginIP),next(NULL){//考虑到先登录的更可能先登出，便使用不严格队列进行添加删除
-	unsigned int index=loginID;
-	tail[index]->next=this;
-	tail[index]=this;
-	counter++;
-}
-void IPID::logout(unsigned int logoutID){//结点并非动态申请，靠析构函数释放
-	unsigned int index=logoutID%10;
-	IPID *r0=head[index];
-	IPID *r=head[index]->next;
-	while(r!=NULL&&r->ID!=logoutID){
-		r0=r;
-		r=r->next;
-	}
-	if(r==NULL) cout<<"\n错误！账号不在连接列表\n";
-	else{
-		r0->next=r->next;
-		r->next=NULL;
-	}
-}
-
-void IPID::init(){
-	for(int i=0;i<10;i++){
-		head[i]=new IPID;
-		tail[i]=head[i];
-	}
-}
-void IPID::finish(){}

@@ -7,4 +7,22 @@ public:
 	int exe(unsigned int ,char*,char,char);
 	int getlastE();
 };
+class IPID{
+	static IPID* head[10];
+	static IPID* tail[10];
+	static int counter;
+	unsigned int ID;
+	char *IP;//不使用实内存可能出现问题
+	IPID* next;
+	public:
+	IPID();
+	IPID(unsigned int,char* );
+	static void init();
+	static void finish();
+	static IPID* search(unsigned int);
+	static int Rcounter(){
+		return counter;
+	}	
+	static void logout(unsigned int);
+};
 #endif
